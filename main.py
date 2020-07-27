@@ -1,7 +1,10 @@
 import numpy as np
 import scipy
+from scipy import ndimage
 import matplotlib.pyplot as plt
 from tifffile import TiffFile
+from ics import moving_window_cross_correlation
+from utils import *
 
 def radial_profile(data):
     sx,sy = data.shape
@@ -25,11 +28,13 @@ def phase_corrlation(im1, im2):
     im1 = apply_hamming_window(im1)
     im2 = apply_hamming_window(im2)
     #todo: multiply window function
-    data_fft = np.fft.fftshift(np.fft.fft2(im1/im1.max()))
-    data_fft2 = np.conj(np.fft.fftshift(np.fft.fft2(im2/im2.max())))
+    data_fft = np.fft.fftshift(np.fft.fft2(im1))
+    data_fft2 = np.conj(np.fft.fftshift(np.fft.fft2(im2)))
     x = np.multiply(data_fft, data_fft2)
 
     k = np.log(np.abs(x))
+    plt.imshow(k.real)
+    plt.show()
     z = radial_profile((x/np.abs(x)).real, )
 
     result = np.fft.ifft2(np.fft.ifftshift(x)).real
@@ -60,13 +65,19 @@ def substract_moving_average_fft(data):
 
 #test_dynamic(data2[:,460:560,500:600])
 
-path = r"D:\Daten\Chunchu\Chunchu-KDEL"
+path = r"F:\Daten\Chunchu"
 
-with TiffFile(path+r"\cytochalasinD-cell1.tif") as tif:
+with TiffFile(path+r"\cytochalasinD-cell1-crop1.tif") as tif:
     data = tif.asarray()
-with TiffFile(path+ r"\untreated-cell3.tif") as tif:
+with TiffFile(path+ r"\untreated-cell3_crop.tif") as tif:
     data2 = tif.asarray()
 
-substract_moving_average_fft(data[:,500:650,500:650])
-substract_moving_average_fft(data2[:,400:800,400:800])#,270:500,550:780])#, data2[:,280:510,510:740])#
+data2-=data2.min()
+mask = cell_mask(data2)
+data2 = data2*mask
+plt.imshow(data2[0])
+plt.show()
+moving_window_cross_correlation(data2)
+#substract_moving_average_fft(data[:,0:88,0:88])
+substract_moving_average_fft(data2[:,0:110,0:110])#,270:500,550:780])#, data2[:,280:510,510:740])#
 
