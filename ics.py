@@ -6,6 +6,9 @@ from scipy.fft import fft2,ifft2
 
 
 def twoD_Gaussian(pos, amplitude, xo, yo, sigma_x, sigma_y, offset):
+    """
+    2D Gaussian function
+    """
     x,y = pos
     xo = float(xo)
     yo = float(yo)
@@ -15,6 +18,7 @@ def twoD_Gaussian(pos, amplitude, xo, yo, sigma_x, sigma_y, offset):
     return g.ravel()
 
 def fit_to_gaussian(data):
+    """Least square fit for 2D Gaussian"""
     ind = np.argmax(data)
     x0,y0 = int(ind/data.shape[0]),ind%data.shape[1]
     x = np.linspace(0, data.shape[0]-1, data.shape[0])
@@ -64,6 +68,10 @@ def power_spec(temp, source):
     return ifft2(x).real
 
 def fft_cross_correlation(template, source):
+    """
+    Compute the spectral power density via fft.
+    Applies Hamming window to prevent edge effects
+    """
     template = apply_hamming_window(np.pad(template,2))
     source = apply_hamming_window(np.pad(source,2))
     temp = np.zeros_like(source)
@@ -74,8 +82,11 @@ def fft_cross_correlation(template, source):
     return result
 
 
-def moving_window_cross_correlation(data):
-    window = 10
+def moving_window_cross_correlation(data, window=10):
+    """
+    Compute the flow in your data sample for a moving window of size window and a sampling rate of 4.
+    Results are plotted and not automativally saved yet
+    """
     k_range = int((data.shape[1] - window) / 4)
     l_range = int((data.shape[2] - window) / 4)
     vec_map = np.zeros((50 ,k_range,l_range,2))
@@ -113,11 +124,7 @@ def moving_window_cross_correlation(data):
                     # done: cross correlate
                 else: #print("skipped", k,l)
                      pass
-    # sum = np.sum(np.abs(vec_map), axis=3)
-    # sum = np.sum(sum, axis=1)
-    # sum = np.sum(sum,axis=1)
-    # plt.plot(sum)
-    # plt.show()
+    #todo: write an update function in the plot for the flow
     vec_map = np.sum(vec_map, axis=0)
     x = np.linspace(0, l_range-1, l_range)*4+window/2
     y = np.linspace(0, k_range-1, k_range)*4+window/2
