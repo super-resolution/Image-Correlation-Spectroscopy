@@ -94,7 +94,6 @@ def moving_window_cross_correlation(data, window=10):
         index=i
         print(i)
         i*=2
-        i+=300
         #row window
 
         for k in range(k_range):
@@ -125,15 +124,4 @@ def moving_window_cross_correlation(data, window=10):
                 else: #print("skipped", k,l)
                      pass
     #todo: write an update function in the plot for the flow
-    vec_map = np.sum(vec_map, axis=0)
-    x = np.linspace(0, l_range-1, l_range)*4+window/2
-    y = np.linspace(0, k_range-1, k_range)*4+window/2
-    X, Y = np.meshgrid(x, y)
-    plt.imshow(data[i])
-    plt.quiver(X, Y,-vec_map[:,:,0],-vec_map[:,:,1],angles='xy', scale=1/2, units="dots")
-    plt.show()
-    plt.imshow(data[0])
-    vec_map[:,:,2] /=(vec_map[:,:,2].max())
-    vec_map[:,:,3] /=(vec_map[:,:,3].max())
-    plt.quiver(X, Y,vec_map[:,:,2],vec_map[:,:,3], scale=1/10, units="dots")
-    plt.show()
+    return vec_map

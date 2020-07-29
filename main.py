@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from tifffile import TiffFile
 from ics import moving_window_cross_correlation
 from utils import *
+import ui
 
 def radial_profile(data):
     sx,sy = data.shape
@@ -77,7 +78,9 @@ mask = cell_mask(data2)
 data2 = data2*mask
 plt.imshow(data2[0])
 plt.show()
-moving_window_cross_correlation(data2)
+window=10
+results = moving_window_cross_correlation(data2, window=window)
+ui.plot_quiver(results, data2, window=window)
 #substract_moving_average_fft(data[:,0:88,0:88])
 substract_moving_average_fft(data2[:,0:110,0:110])#,270:500,550:780])#, data2[:,280:510,510:740])#
 
