@@ -18,15 +18,24 @@ def twoD_Gaussian(pos, amplitude, xo, yo, sigma_x, sigma_y, offset):
     return g.ravel()
 
 def fit_to_gaussian(data):
-    """Least square fit for 2D Gaussian"""
+    """Least square fit for 2D Gaussian
+       edit 29.07. cropped feature space to enhance optimization speed
+    """
+    #ind = np.argmax(data)
+    #x0,y0 = int(ind/data.shape[0]),ind%data.shape[1]
+    #x = np.linspace(0, data.shape[0]-1, data.shape[0])
+    #y = np.linspace(0, data.shape[1]-1, data.shape[1])
+    x = np.linspace(0, 8, 9)
+    y = np.linspace(0, 8, 9)
+    x_half = int(data.shape[0]/2)
+    y_half = int(data.shape[1]/2)
+    data= data[x_half-4:x_half+5, y_half-4:y_half+5]
     ind = np.argmax(data)
     x0,y0 = int(ind/data.shape[0]),ind%data.shape[1]
-    x = np.linspace(0, data.shape[0]-1, data.shape[0])
-    y = np.linspace(0, data.shape[1]-1, data.shape[1])
     x, y = np.meshgrid(x, y)
-    initial_guess = (data.max(), x0, y0, 2, 2, 0)
+    initial_guess = (data.max(), x0, y0, 1.5, 1.5, 0)
     bounds = np.array([[0, np.inf], [x0-2,x0+2], [y0-2,y0+2], [0,4],[0,4],[0,1]])
-    try:
+    try:#todo: only fit the center
         popt, pcov = opt.curve_fit(twoD_Gaussian, (x, y), data.flatten(),bounds=bounds.T, p0=initial_guess)
         # data_fitted = twoD_Gaussian((x, y), *popt)
         #
@@ -36,6 +45,8 @@ def fit_to_gaussian(data):
         # ax.contour(x, y, data_fitted.reshape(data.shape[0], data.shape[1]), 8, colors='w')
         # print(popt[1], popt[2])
         # plt.show()
+        popt[1] +=x_half-4
+        popt[2] += y_half-4
         return popt
 
 

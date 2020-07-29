@@ -76,6 +76,7 @@ with TiffFile(path+ r"\untreated-cell3_crop.tif") as tif:
 data2-=data2.min()
 mask = cell_mask(data2)
 data2 = data2*mask
+data2[np.where(data2==0)] = np.mean(data2)
 plt.imshow(data2[0])
 plt.show()
 window=10
