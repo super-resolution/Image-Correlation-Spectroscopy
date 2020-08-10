@@ -3,17 +3,6 @@ import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider, Button, RadioButtons
 
 
-def build_callback_slicer(data, im, vec, vec_map, fig):
-    axcolor = 'lightgoldenrodyellow'
-    axamp = plt.axes([0.25, 0.15, 0.65, 0.03], facecolor=axcolor)
-    sframe = Slider(axamp, 'frame', 0.0, float(data.shape[0]), valinit=0.0, valstep=1.0)
-    def callback_data_picker(val):
-        i = int(sframe.value)
-        im.set_data(data[i])
-        vec.set_UVC(-vec_map[i,:,:,0], -vec_map[i,:,:,1])
-        fig.canvas.draw_idle()
-    sframe.on_changed(callback_data_picker)
-    return sframe
 
 def plot_quiver(vec_map, data, window=10):
     fig,axes = plt.subplots(1)
