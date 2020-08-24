@@ -19,7 +19,6 @@ def twoD_Gaussian(pos, amplitude, xo, yo, sigma_x, sigma_y, offset):
     g = offset + amplitude*np.exp( - (a*((x-xo)**2) + c*((y-yo)**2)))
     return g.ravel()
 
-@timeit
 def fit_to_gaussian(data):
     """Least square fit for 2D Gaussian
        edit 29.07. cropped feature space to enhance optimization speed
@@ -105,15 +104,15 @@ def fft_cross_correlation(template, source):
     result = np.fft.fftshift(result)
     return result
 
-def moving_window_cross_correlation(data, window=10):
+def moving_window_cross_correlation(data, window=10, full_norm=0):
     """
     Compute the flow in your data sample for a moving window of size window and a sampling rate of 4.
     Results are plotted and not automativally saved yet
     """
     k_range = int((data.shape[1] - window) / 4)
     l_range = int((data.shape[2] - window) / 4)
-    vec_map = np.zeros((50 ,k_range,l_range,2))
-    for i in range(50):
+    vec_map = np.zeros((200 ,k_range,l_range,2))
+    for i in range(200):
         # iterate a fraction of the time series for test purposes
         index=i
         print(i)
@@ -132,7 +131,7 @@ def moving_window_cross_correlation(data, window=10):
 
                 norm = np.mean(data[i])
                 sample = data[i, k:k+window,l:l+window]
-                if np.mean(sample)> 2*norm:
+                if np.mean(sample)> 2*norm :
                     sample = data[i, k:k+window,l:l+window]
                     # done: time window dt=1 FTM
                     test = np.zeros((window+4, window+4))
@@ -152,6 +151,6 @@ def moving_window_cross_correlation(data, window=10):
                     # done: cross correlate
                 else: #print("skipped", k,l)
                      pass
-    #done: write an update function in the plot for the flow
+    # done: write an update function in the plot for the flow
     # return parameter map
     return vec_map
