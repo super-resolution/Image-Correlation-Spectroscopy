@@ -28,7 +28,7 @@ def fit_to_gaussian(data):
     x_half = int(data.shape[0]/2)
     y_half = int(data.shape[1]/2)
     #crop feature space to enhance speed
-    data= data[x_half-4:x_half+5, y_half-4:y_half+5]
+    data = data[x_half-4:x_half+5, y_half-4:y_half+5]
     #receive max index of flattened data
     ind = np.argmax(data)
     #compute row and column of max index
@@ -129,9 +129,9 @@ def moving_window_cross_correlation(data, window=10, full_norm=0):
                 # done: cropp 10x10
                 data[i] -= data[i].min()
 
-                norm = np.mean(data[i])
+                threshold = np.mean(data[i])
                 sample = data[i, k:k+window,l:l+window]
-                if np.mean(sample)> 2*norm :
+                if np.mean(sample)> 2*threshold :
                     sample = data[i, k:k+window,l:l+window]
                     # done: time window dt=1 FTM
                     test = np.zeros((window+4, window+4))

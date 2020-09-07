@@ -5,6 +5,7 @@ import cv2
 from skimage.segmentation import watershed
 from functools import wraps
 import matplotlib.pyplot as plt
+import scipy
 
 
 def coroutine(func):
@@ -17,7 +18,7 @@ def coroutine(func):
     return primer
 
 @coroutine
-def data_collector():
+def data_collector(name):
     data = []
     while True:
         current_data = yield
@@ -26,7 +27,7 @@ def data_collector():
         else:
             break
     data = np.array(data)
-    print(np.mean(data), np.std(data))
+    print(name, np.mean(data), np.std(data))
     return data
 
 
@@ -38,10 +39,10 @@ def to_full_uint8_values(data):
 
 def compute_result_statistics(results, structs, window):
     w = int(window / 2)
-    on_time = data_collector()
-    off_time = data_collector()
-    on_count = data_collector()
-    off_count = data_collector()
+    on_time = data_collector("on_time")
+    off_time = data_collector("off_time")
+    on_count = data_collector("on_count")
+    off_count = data_collector("off_count")
     n = np.zeros(results.shape[0])
     for j in range(len(structs)):  # todo: generator
         fig, axs = plt.subplots(2)
@@ -101,7 +102,7 @@ def extrude_philapodia_structure(data, mask):
     timal_average = to_full_uint8_values(timal_average)
 
     #increase mask size to crop out edges to inner cell
-    mask = cv2.erode(mask, np.ones((3, 3), np.uint8), iterations=4)
+    mask = cv2.erode(mask, np.ones((3, 3), np.uint8), iterations=6)
     skel = cv2.Canny(timal_average.astype(np.uint8), 90, 140)
     skel = np.uint8(skel * mask)
     #close holes in edge image
@@ -118,7 +119,8 @@ def extrude_philapodia_structure(data, mask):
     _, markers = cv2.connectedComponents(markers.astype(np.uint8))
     markers += 1
     colormap = watershed(-dis, markers)
-
+    plt.imshow(colormap)
+    plt.show()
     #compute masks and return them
     structs = []
     for j in range(colormap.max()):
@@ -130,7 +132,7 @@ def extrude_philapodia_structure(data, mask):
             structs.append(mask)
     return structs
 
-def cell_mask(data, thresh=1.3):
+def cell_mask(data, thresh=1.5):
     """
     Mask the average cell body
     """
